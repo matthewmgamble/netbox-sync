@@ -1,0 +1,90 @@
+# NetBox Sync Configuration
+# Copy to config.yaml and configure for your environment
+
+# Mist Configuration
+mist:
+  # API token from Mist (set via MIST_API_TOKEN env var)
+  api_token: ${MIST_API_TOKEN}
+
+  # Organization ID (get from Mist UI or API)
+  organization_id: "your-org-uuid-here"
+
+# NetBox Configuration
+netbox:
+  # NetBox URL
+  url: https://netbox.example.com
+
+  # API token (set via NETBOX_API_TOKEN env var)
+  token: ${NETBOX_API_TOKEN}
+
+  # SSL verification
+  verify_ssl: true
+
+  # Request timeout
+  timeout: 30s
+
+  # Rate limiting (requests per minute)
+  rate_limit: 100
+
+# Synchronization Control
+sync:
+  # What to sync (Sprint 1-2 scope)
+  enabled:
+    sites: true
+    device_types: true
+    devices: true
+
+    # Future sprints
+    interfaces: false
+    vlans: false
+    ip_addresses: false
+    wireless: false
+
+  # Deletion behavior
+  delete_orphans: false  # Don't delete NetBox objects missing from Mist
+
+  # Tagging
+  apply_source_tag: true
+  source_tag_name: "mist-synced"
+
+  # Custom fields
+  create_custom_fields: true
+  custom_field_prefix: "mist_"
+
+# Filtering
+filter:
+  # Exclude specific sites by name
+  exclude_sites: []
+    # - "Test Lab"
+    # - "Decommissioned"
+
+  # Exclude device models by pattern
+  exclude_device_models: []
+    # - "virtual*"
+
+# State Tracking
+state:
+  # File-based state storage
+  file: ./data/sync-state.json
+
+  # History retention
+  retention_days: 30
+
+# Logging
+logging:
+  # Log level: debug, info, warn, error
+  level: info
+
+  # Format: json or text
+  format: json
+
+  # Output: stdout or file path
+  output: stdout
+
+  # Log API calls (verbose, for debugging)
+  log_api_calls: false
+
+# Mapping Configuration
+mapping:
+  # Path to mapping file
+  file: ./configs/mapping.yaml

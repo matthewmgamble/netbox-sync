@@ -1,0 +1,45 @@
+# Binaries
+netbox-sync
+netbox-sync-*
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Configuration files with secrets
+configs/config.yaml
+configs/mapping.yaml
+
+IMPLEMENTATION_PLAN.md
+mist.md
+mist-postman.json
+
+# State and data
+data/
+*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml

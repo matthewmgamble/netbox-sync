@@ -1,0 +1,232 @@
+# Site Mapping Configuration
+# Maps Mist sites to NetBox regions and site groups
+
+# Default mappings (applied if no specific mapping exists)
+defaults:
+  region: "Canada"
+  site_group: "Mist Managed"
+  status: "active"
+
+# Convention-based mapping rules
+# Rules are evaluated in order; first match wins
+rules:
+  # Canadian provinces (auto-detect from address)
+  - pattern: ".*(AB|Alberta).*"
+    region: "Canada/Alberta"
+    site_group: "Canadian Sites/Western"
+
+  - pattern: ".*(BC|British Columbia).*"
+    region: "Canada/British Columbia"
+    site_group: "Canadian Sites/Western"
+
+  - pattern: ".*(MB|Manitoba).*"
+    region: "Canada/Manitoba"
+    site_group: "Canadian Sites/Prairies"
+
+  - pattern: ".*(NB|New Brunswick).*"
+    region: "Canada/New Brunswick"
+    site_group: "Canadian Sites/Atlantic"
+
+  - pattern: ".*(NL|Newfoundland|Labrador).*"
+    region: "Canada/Newfoundland and Labrador"
+    site_group: "Canadian Sites/Atlantic"
+
+  - pattern: ".*(NS|Nova Scotia).*"
+    region: "Canada/Nova Scotia"
+    site_group: "Canadian Sites/Atlantic"
+
+  - pattern: ".*(ON|Ontario).*"
+    region: "Canada/Ontario"
+    site_group: "Canadian Sites/Central"
+
+  - pattern: ".*(PE|PEI|Prince Edward Island).*"
+    region: "Canada/Prince Edward Island"
+    site_group: "Canadian Sites/Atlantic"
+
+  - pattern: ".*(QC|Quebec|Québec).*"
+    region: "Canada/Quebec"
+    site_group: "Canadian Sites/Central"
+
+  - pattern: ".*(SK|Saskatchewan).*"
+    region: "Canada/Saskatchewan"
+    site_group: "Canadian Sites/Prairies"
+
+  - pattern: ".*(NT|Northwest Territories).*"
+    region: "Canada/Northwest Territories"
+    site_group: "Canadian Sites/Northern"
+
+  - pattern: ".*(NU|Nunavut).*"
+    region: "Canada/Nunavut"
+    site_group: "Canadian Sites/Northern"
+
+  - pattern: ".*(YT|Yukon).*"
+    region: "Canada/Yukon"
+    site_group: "Canadian Sites/Northern"
+
+  # US states (examples)
+  - pattern: ".*(California|CA).*"
+    region: "United States/California"
+    site_group: "US Sites/West Coast"
+
+  - pattern: ".*(New York|NY).*"
+    region: "United States/New York"
+    site_group: "US Sites/East Coast"
+
+  # Lab/Test sites
+  - pattern: ".*[Ll]ab.*"
+    region: "Internal"
+    site_group: "Lab Sites"
+    status: "planned"
+
+  - pattern: ".*[Tt]est.*"
+    region: "Internal"
+    site_group: "Test Sites"
+    status: "planned"
+
+# Explicit site mappings (highest priority)
+# Use Mist site ID as key
+sites: {}
+  # Example:
+  # "mist-site-uuid-123":
+  #   netbox_site_name: "Toronto HQ"  # Optional: override Mist site name
+  #   region: "Canada/Ontario"
+  #   site_group: "Headquarters"
+  #   status: "active"
+  #   custom_fields:
+  #     business_unit: "Corporate"
+  #     cost_center: "12345"
+
+# Region hierarchy (ensures regions exist in NetBox)
+# Regions will be created in this structure
+regions:
+  - name: "Canada"
+    slug: "canada"
+    children:
+      - name: "Alberta"
+        slug: "alberta"
+      - name: "British Columbia"
+        slug: "british-columbia"
+      - name: "Manitoba"
+        slug: "manitoba"
+      - name: "New Brunswick"
+        slug: "new-brunswick"
+      - name: "Newfoundland and Labrador"
+        slug: "newfoundland-labrador"
+      - name: "Nova Scotia"
+        slug: "nova-scotia"
+      - name: "Ontario"
+        slug: "ontario"
+      - name: "Prince Edward Island"
+        slug: "prince-edward-island"
+      - name: "Quebec"
+        slug: "quebec"
+      - name: "Saskatchewan"
+        slug: "saskatchewan"
+      - name: "Northwest Territories"
+        slug: "northwest-territories"
+      - name: "Nunavut"
+        slug: "nunavut"
+      - name: "Yukon"
+        slug: "yukon"
+
+  - name: "United States"
+    slug: "united-states"
+    children:
+      - name: "California"
+        slug: "california"
+      - name: "New York"
+        slug: "new-york"
+
+  - name: "Internal"
+    slug: "internal"
+
+# Site group hierarchy (ensures site groups exist)
+site_groups:
+  - name: "Mist Managed"
+    slug: "mist-managed"
+    children:
+      - name: "Canadian Sites"
+        slug: "canadian-sites"
+        children:
+          - name: "Western"
+            slug: "western"
+          - name: "Central"
+            slug: "central"
+          - name: "Prairies"
+            slug: "prairies"
+          - name: "Atlantic"
+            slug: "atlantic"
+          - name: "Northern"
+            slug: "northern"
+      - name: "US Sites"
+        slug: "us-sites"
+        children:
+          - name: "West Coast"
+            slug: "west-coast"
+          - name: "East Coast"
+            slug: "east-coast"
+
+  - name: "Lab Sites"
+    slug: "lab-sites"
+
+  - name: "Test Sites"
+    slug: "test-sites"
+
+# Custom field definitions for NetBox
+# These will be created if they don't exist
+custom_fields:
+  sites:
+    - name: "mist_site_id"
+      label: "Mist Site ID"
+      type: "text"
+      description: "Mist cloud site UUID"
+      required: false
+
+    - name: "mist_org_id"
+      label: "Mist Organization ID"
+      type: "text"
+      description: "Mist organization UUID"
+      required: false
+
+    - name: "last_synced"
+      label: "Last Synced"
+      type: "date"
+      description: "Last synchronization timestamp from Mist"
+      required: false
+
+  devices:
+    - name: "mist_device_id"
+      label: "Mist Device ID"
+      type: "text"
+      description: "Mist cloud device UUID"
+      required: false
+
+    - name: "mist_site_id"
+      label: "Mist Site ID"
+      type: "text"
+      description: "Mist site UUID this device belongs to"
+      required: false
+
+    - name: "mist_mac"
+      label: "Mist MAC Address"
+      type: "text"
+      description: "Primary MAC address from Mist"
+      required: false
+
+    - name: "mist_model"
+      label: "Mist Model"
+      type: "text"
+      description: "Exact model string from Mist"
+      required: false
+
+    - name: "firmware_version"
+      label: "Firmware Version"
+      type: "text"
+      description: "Current firmware version"
+      required: false
+
+    - name: "last_synced"
+      label: "Last Synced"
+      type: "date"
+      description: "Last synchronization timestamp from Mist"
+      required: false

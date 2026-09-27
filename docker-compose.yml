@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  netbox-sync:
+    build: .
+    image: netbox-sync:latest
+    container_name: netbox-sync
+
+    volumes:
+      # Mount configuration files
+      - ./configs/config.yaml:/config/config.yaml:ro
+      - ./configs/mapping.yaml:/config/mapping.yaml:ro
+
+      # Mount data directory for state persistence
+      - ./data:/data
+
+    environment:
+      # Override sensitive values with environment variables
+      - MIST_API_TOKEN=${MIST_API_TOKEN}
+      - NETBOX_API_TOKEN=${NETBOX_API_TOKEN}
+
+    # Uncomment to run as a cron job (requires external scheduler)
+    # restart: "no"
+
+    # Uncomment to keep container running for manual execution
+    # command: tail -f /dev/null
+
+# Example: Run sync on a schedule using cron
+# 0 */6 * * * docker-compose run --rm netbox-sync
