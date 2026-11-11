@@ -5,9 +5,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/int13consulting/netbox-sync/internal/config"
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/models"
+	"github.com/matthewmgamble/netbox-sync/internal/config"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/models"
 	netbox "github.com/netbox-community/go-netbox/v4"
 )
 

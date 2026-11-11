@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/int13consulting/netbox-sync/internal/client/mist"
-	"github.com/int13consulting/netbox-sync/internal/client/netbox"
-	"github.com/int13consulting/netbox-sync/internal/config"
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/models"
-	"github.com/int13consulting/netbox-sync/internal/state"
+	"github.com/matthewmgamble/netbox-sync/internal/client/mist"
+	"github.com/matthewmgamble/netbox-sync/internal/client/netbox"
+	"github.com/matthewmgamble/netbox-sync/internal/config"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/models"
+	"github.com/matthewmgamble/netbox-sync/internal/state"
 )
 
 // Engine orchestrates the synchronization process
@@ -131,6 +131,14 @@ func (e *Engine) Run() error {
 	if e.config.Sync.Enabled.Wireless {
 		if err := e.syncWirelessLANsWithData(); err != nil {
 			logger.Errorf("Wireless LAN sync failed: %v", err)
+			syncErr = err
+		}
+	}
+
+	// Phase 9: Sync IP prefixes
+	if e.config.Sync.Enabled.Prefixes {
+		if err := e.syncPrefixesWithData(); err != nil {
+			logger.Errorf("IP prefix sync failed: %v", err)
 			syncErr = err
 		}
 	}

@@ -3,8 +3,8 @@ package sync
 import (
 	"fmt"
 
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/state"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/state"
 )
 
 // syncVLANsWithData synchronizes VLANs from Mist networks to NetBox

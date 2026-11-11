@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/models"
-	"github.com/int13consulting/netbox-sync/internal/state"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/models"
+	"github.com/matthewmgamble/netbox-sync/internal/state"
 )
 
 // syncInterfacesWithData synchronizes switch interfaces and AP uplinks based on discovered switch data
@@ -14,6 +14,17 @@ func (e *Engine) syncInterfacesWithData(mistSites []*models.Site) error {
 	logger.Info("Starting interface and cable synchronization")
 
 	stats := state.ObjectStats{}
+
+	// Get all VLANs used by wireless LANs for trunk port configuration
+	logger.Info("Fetching wireless LAN VLANs for trunk port configuration")
+	wirelessVLANs, err := e.netboxClient.GetAllWirelessLANVLANs()
+	if err != nil {
+		logger.WithField("error", err).Warn("Failed to fetch wireless LAN VLANs, AP trunks will not have VLAN assignments")
+		wirelessVLANs = []int64{} // Continue without VLANs
+	} else {
+		e.state.RecordAPICall("netbox")
+		logger.WithField("vlan_count", len(wirelessVLANs)).Info("Found wireless LAN VLANs for trunk configuration")
+	}
 
 	for _, site := range mistSites {
 		logger.WithField("site", site.Name).Debug("Processing discovered switches for site")
@@ -41,7 +52,7 @@ func (e *Engine) syncInterfacesWithData(mistSites []*models.Site) error {
 
 		// Process each discovered switch
 		for _, switchData := range switches {
-			if err := e.syncDiscoveredSwitch(switchData, &stats); err != nil {
+			if err := e.syncDiscoveredSwitch(switchData, wirelessVLANs, &stats); err != nil {
 				logger.WithField("error", err).Error("Failed to sync discovered switch")
 			}
 		}
@@ -58,7 +69,7 @@ func (e *Engine) syncInterfacesWithData(mistSites []*models.Site) error {
 }
 
 // syncDiscoveredSwitch processes a single discovered switch and its connected APs
-func (e *Engine) syncDiscoveredSwitch(switchData map[string]interface{}, stats *state.ObjectStats) error {
+func (e *Engine) syncDiscoveredSwitch(switchData map[string]interface{}, wirelessVLANs []int64, stats *state.ObjectStats) error {
 	// Extract switch hostname
 	hostname, ok := switchData["hostname"].(string)
 	if !ok || hostname == "" {
@@ -107,7 +118,7 @@ func (e *Engine) syncDiscoveredSwitch(switchData map[string]interface{}, stats *
 			continue
 		}
 
-		if err := e.syncConnectedAP(switchDeviceID, hostname, apData, stats); err != nil {
+		if err := e.syncConnectedAP(switchDeviceID, hostname, apData, wirelessVLANs, stats); err != nil {
 			logger.WithField("error", err).Error("Failed to sync connected AP")
 			stats.Errors++
 		}
@@ -117,7 +128,7 @@ func (e *Engine) syncDiscoveredSwitch(switchData map[string]interface{}, stats *
 }
 
 // syncConnectedAP creates interfaces and cable for an AP connected to a switch port
-func (e *Engine) syncConnectedAP(switchDeviceID int64, switchHostname string, apData map[string]interface{}, stats *state.ObjectStats) error {
+func (e *Engine) syncConnectedAP(switchDeviceID int64, switchHostname string, apData map[string]interface{}, wirelessVLANs []int64, stats *state.ObjectStats) error {
 	// Extract AP details
 	apHostname, _ := apData["hostname"].(string)
 	apMAC, _ := apData["mac"].(string)
@@ -143,6 +154,10 @@ func (e *Engine) syncConnectedAP(switchDeviceID int64, switchHostname string, ap
 		"port":   portName,
 	}).Debug("Processing AP connection")
 
+	// Extract PoE data
+	poeStatus, _ := apData["poe_status"].(bool)
+	powerDraw, _ := apData["power_draw"].(float64)
+
 	// Create/find switch port interface
 	switchPort, err := e.netboxClient.FindOrCreateInterface(switchDeviceID, portName, "1000base-t")
 	if err != nil {
@@ -150,6 +165,34 @@ func (e *Engine) syncConnectedAP(switchDeviceID int64, switchHostname string, ap
 	}
 	e.state.RecordAPICall("netbox")
 	switchPortID := int64(switchPort.GetId())
+
+	// Update switch port with PoE and connection data
+	customFields := make(map[string]interface{})
+	customFields["poe_enabled"] = poeStatus
+	if powerDraw > 0 {
+		customFields["poe_power_draw"] = int(powerDraw)
+	}
+	if apHostname != "" {
+		customFields["connected_device_name"] = apHostname
+	}
+	if apMAC != "" {
+		customFields["connected_device_mac"] = apMAC
+	}
+
+	// Update interface custom fields
+	if err := e.netboxClient.UpdateInterfaceCustomFields(switchPortID, customFields); err != nil {
+		logger.WithFields(map[string]interface{}{
+			"port":  portName,
+			"error": err,
+		}).Warn("Failed to update switch port custom fields")
+	} else {
+		e.state.RecordAPICall("netbox")
+		logger.WithFields(map[string]interface{}{
+			"port":        portName,
+			"poe_enabled": poeStatus,
+			"power_draw":  powerDraw,
+		}).Debug("Updated switch port with PoE data")
+	}
 
 	// Find AP device in NetBox
 	var apDevice interface{ GetId() int32 }
@@ -187,6 +230,25 @@ func (e *Engine) syncConnectedAP(switchDeviceID int64, switchHostname string, ap
 	}
 	e.state.RecordAPICall("netbox")
 	apUplinkID := int64(apUplink.GetId())
+
+	// Assign wireless LAN VLANs to AP uplink in trunk mode
+	if len(wirelessVLANs) > 0 {
+		if err := e.netboxClient.AssignMultipleVLANsToInterface(apUplinkID, wirelessVLANs); err != nil {
+			logger.WithFields(map[string]interface{}{
+				"ap":         apHostname,
+				"interface":  "eth0",
+				"vlan_count": len(wirelessVLANs),
+				"error":      err,
+			}).Warn("Failed to assign VLANs to AP uplink")
+		} else {
+			e.state.RecordAPICall("netbox")
+			logger.WithFields(map[string]interface{}{
+				"ap":         apHostname,
+				"interface":  "eth0",
+				"vlan_count": len(wirelessVLANs),
+			}).Info("Assigned wireless VLANs to AP uplink in trunk mode")
+		}
+	}
 
 	// Create cable between switch port and AP uplink
 	cable, err := e.netboxClient.FindOrCreateCable(switchPortID, apUplinkID)

@@ -3,7 +3,7 @@ package netbox
 import (
 	"fmt"
 
-	"github.com/int13consulting/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
 	netbox "github.com/netbox-community/go-netbox/v4"
 )
 
@@ -99,4 +99,43 @@ func (c *Client) UpdateWirelessLAN(wlanID int64, vlanID *int64) error {
 
 	return nil
 }
+
+// GetAllWirelessLANVLANs retrieves all unique VLAN IDs used by wireless LANs
+func (c *Client) GetAllWirelessLANVLANs() ([]int64, error) {
+	c.rateLimit()
+
+	// Get all wireless LANs
+	req := c.client.WirelessAPI.WirelessWirelessLansList(c.ctx)
+	result, _, err := req.Execute()
+	if err != nil {
+		return nil, fmt.Errorf("failed to query wireless LANs: %w", err)
+	}
+
+	// Collect unique VLAN IDs
+	vlanMap := make(map[int64]bool)
+	if result.GetCount() > 0 {
+		results := result.GetResults()
+		for _, wlan := range results {
+			if vlan, ok := wlan.GetVlanOk(); ok && vlan != nil {
+				vlanID := int64(vlan.GetId())
+				if vlanID > 0 {
+					vlanMap[vlanID] = true
+				}
+			}
+		}
+	}
+
+	// Convert map to slice
+	vlans := make([]int64, 0, len(vlanMap))
+	for vlanID := range vlanMap {
+		vlans = append(vlans, vlanID)
+	}
+
+	if c.logAPI {
+		logger.WithField("vlan_count", len(vlans)).Debug("Retrieved wireless LAN VLANs")
+	}
+
+	return vlans, nil
+}
+
 

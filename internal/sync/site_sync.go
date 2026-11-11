@@ -3,10 +3,10 @@ package sync
 import (
 	"strings"
 
-	"github.com/int13consulting/netbox-sync/internal/config"
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/models"
-	"github.com/int13consulting/netbox-sync/internal/state"
+	"github.com/matthewmgamble/netbox-sync/internal/config"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/models"
+	"github.com/matthewmgamble/netbox-sync/internal/state"
 )
 
 // syncSitesWithData synchronizes sites from Mist to NetBox using cached data

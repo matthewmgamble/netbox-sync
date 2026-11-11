@@ -3,7 +3,7 @@ package netbox
 import (
 	"fmt"
 
-	"github.com/int13consulting/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
 	netbox "github.com/netbox-community/go-netbox/v4"
 )
 

@@ -3,8 +3,8 @@ package netbox
 import (
 	"fmt"
 
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/models"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/models"
 	netbox "github.com/netbox-community/go-netbox/v4"
 )
 
@@ -29,6 +29,16 @@ func (c *Client) EnsureCustomFields(mapping *models.MappingConfig) error {
 				"field": cf.Name,
 				"error": err,
 			}).Warn("Failed to create custom field for devices")
+		}
+	}
+
+	// Create interface custom fields
+	for _, cf := range mapping.CustomFields.Interfaces {
+		if err := c.ensureCustomField(cf, []string{"dcim.interface"}); err != nil {
+			logger.WithFields(map[string]interface{}{
+				"field": cf.Name,
+				"error": err,
+			}).Warn("Failed to create custom field for interfaces")
 		}
 	}
 
