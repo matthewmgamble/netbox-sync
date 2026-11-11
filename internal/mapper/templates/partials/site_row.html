@@ -47,8 +47,8 @@
     <td>
         <button type="button" class="btn btn-sm"
             hx-post="/api/mapping"
-            hx-include="#row-{{.Row.MistSiteID}} input, #row-{{.Row.MistSiteID}} select"
-            hx-target="#row-{{.Row.MistSiteID}}"
+            hx-include="closest tr"
+            hx-target="closest tr"
             hx-swap="outerHTML">Save</button>
         {{if .Row.Saved}}<span class="check">✓</span>{{end}}
     </td>
