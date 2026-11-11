@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Mapping Wizard — netbox-sync</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/htmx.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Site Mapping Wizard</h1>
+        <div class="stats">
+            <span class="badge mapped">{{.MappedCount}} mapped</span>
+            <span class="badge unmapped">{{.TotalCount | printf "%d total"}}</span>
+        </div>
+        <div class="actions">
+            <a href="/api/export" class="btn btn-primary">Export mapping.yaml</a>
+        </div>
+    </header>
+
+    <main>
+        <form id="bulk-form" hx-post="/api/mapping/bulk" hx-target="body">
+            <div class="toolbar">
+                <input type="text" id="filter" placeholder="Filter sites..." onkeyup="filterRows(this.value)">
+                <button type="submit" class="btn">Save All</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mist Site</th>
+                        <th>Address</th>
+                        <th>NetBox Site</th>
+                        <th>Region</th>
+                        <th>Site Group</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Rows}}
+                    {{template "site_row.html" (dict "Row" . "NetBoxSites" $.NetBoxSites "Regions" $.Regions "SiteGroups" $.SiteGroups "Statuses" $.Statuses)}}
+                    {{end}}
+                </tbody>
+            </table>
+        </form>
+    </main>
+
+    <script>
+    function filterRows(query) {
+        query = query.toLowerCase();
+        document.querySelectorAll('tbody tr').forEach(function(row) {
+            var text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+    </script>
+</body>
+</html>

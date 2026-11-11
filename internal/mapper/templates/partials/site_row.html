@@ -1,0 +1,56 @@
+{{define "site_row.html"}}
+<tr class="site-row{{if .Row.Saved}} saved{{end}}{{if .Row.NetBoxSite}} mapped{{end}}" id="row-{{.Row.MistSiteID}}">
+    <td class="site-name">
+        <strong>{{.Row.MistSiteName}}</strong>
+        <input type="hidden" name="mist_site_id" value="{{.Row.MistSiteID}}">
+        <input type="hidden" name="mist_site_name" value="{{.Row.MistSiteName}}">
+        <input type="hidden" name="mist_address" value="{{.Row.MistAddress}}">
+        <small class="site-id">{{.Row.MistSiteID}}</small>
+    </td>
+    <td>{{.Row.MistAddress}}</td>
+    <td>
+        <select name="netbox_site">
+            <option value="">— select —</option>
+            {{$current := .Row.NetBoxSite}}
+            {{range .NetBoxSites}}
+            <option value="{{.GetName}}"{{if eq $current (.GetName)}} selected{{end}}>{{.GetName}}</option>
+            {{end}}
+        </select>
+    </td>
+    <td>
+        <select name="region">
+            <option value="">— none —</option>
+            {{$current := .Row.Region}}
+            {{range .Regions}}
+            <option value="{{.GetName}}"{{if eq $current (.GetName)}} selected{{end}}>{{.GetName}}</option>
+            {{end}}
+        </select>
+    </td>
+    <td>
+        <select name="site_group">
+            <option value="">— none —</option>
+            {{$current := .Row.SiteGroup}}
+            {{range .SiteGroups}}
+            <option value="{{.GetName}}"{{if eq $current (.GetName)}} selected{{end}}>{{.GetName}}</option>
+            {{end}}
+        </select>
+    </td>
+    <td>
+        <select name="status">
+            <option value="">— default —</option>
+            {{$current := .Row.Status}}
+            {{range .Statuses}}
+            <option value="{{.}}"{{if eq $current .}} selected{{end}}>{{.}}</option>
+            {{end}}
+        </select>
+    </td>
+    <td>
+        <button type="button" class="btn btn-sm"
+            hx-post="/api/mapping"
+            hx-include="#row-{{.Row.MistSiteID}} input, #row-{{.Row.MistSiteID}} select"
+            hx-target="#row-{{.Row.MistSiteID}}"
+            hx-swap="outerHTML">Save</button>
+        {{if .Row.Saved}}<span class="check">✓</span>{{end}}
+    </td>
+</tr>
+{{end}}
