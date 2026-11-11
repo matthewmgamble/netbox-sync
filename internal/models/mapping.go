@@ -36,8 +36,9 @@ type MappingConfig struct {
 
 	// Custom field definitions
 	CustomFields struct {
-		Sites   []CustomFieldDef `yaml:"sites"`
-		Devices []CustomFieldDef `yaml:"devices"`
+		Sites      []CustomFieldDef `yaml:"sites"`
+		Devices    []CustomFieldDef `yaml:"devices"`
+		Interfaces []CustomFieldDef `yaml:"interfaces"`
 	} `yaml:"custom_fields"`
 }
 

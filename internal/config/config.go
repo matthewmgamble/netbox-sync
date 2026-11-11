@@ -43,6 +43,7 @@ type SyncConfig struct {
 		Devices      bool `mapstructure:"devices"`
 		Interfaces   bool `mapstructure:"interfaces"`
 		VLANs        bool `mapstructure:"vlans"`
+		Prefixes     bool `mapstructure:"prefixes"`
 		IPAddresses  bool `mapstructure:"ip_addresses"`
 		Wireless     bool `mapstructure:"wireless"`
 	} `mapstructure:"enabled"`
