@@ -238,6 +238,12 @@ go build -o netbox-sync ./cmd/sync
 # Cross-compile for Linux
 GOOS=linux GOARCH=amd64 go build -o netbox-sync-linux ./cmd/sync
 
+# Cross-compile for Windows
+
+GOOS=windows GOARCH=amd64 go build -o netbox-sync.exe ./cmd/sync
+
+$env:GOOS="windows"; $env:GOARCH="amd64"; go build -o netbox-sync.exe ./cmd/sync  
+
 # Build Docker image
 docker build -t netbox-sync:latest .
 ```

@@ -32,8 +32,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Initialize Mist client
-	mistClient, err := mist.NewClient(&cfg.Mist, &cfg.Filter, cfg.Logging.LogAPICalls)
+	// Initialize Mist client with no site filter — mapper needs to see all sites
+	noFilter := &config.FilterConfig{}
+	mistClient, err := mist.NewClient(&cfg.Mist, noFilter, cfg.Logging.LogAPICalls)
 	if err != nil {
 		log.Fatalf("Failed to initialize Mist client: %v", err)
 	}
