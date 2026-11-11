@@ -150,6 +150,32 @@ func (c *Client) createRegion(name, slug string, parentID *int64) (*netbox.Regio
 	return result, nil
 }
 
+// ListRegions retrieves all regions from NetBox with pagination
+func (c *Client) ListRegions() ([]netbox.Region, error) {
+	var allRegions []netbox.Region
+	limit := int32(50)
+	offset := int32(0)
+
+	for {
+		c.rateLimit()
+		req := c.client.DcimAPI.DcimRegionsList(c.ctx).Limit(limit).Offset(offset)
+		result, _, err := req.Execute()
+		if err != nil {
+			return nil, fmt.Errorf("failed to list regions: %w", err)
+		}
+
+		results := result.GetResults()
+		allRegions = append(allRegions, results...)
+
+		if result.GetNext() == "" {
+			break
+		}
+		offset += limit
+	}
+
+	return allRegions, nil
+}
+
 // GetRegionByName finds a region by name (supports hierarchical names like "Canada/Ontario")
 func (c *Client) GetRegionByName(name string) (*netbox.Region, error) {
 	c.rateLimit()

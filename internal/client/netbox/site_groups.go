@@ -149,6 +149,32 @@ func (c *Client) createSiteGroup(name, slug string, parentID *int64) (*netbox.Si
 	return result, nil
 }
 
+// ListSiteGroups retrieves all site groups from NetBox with pagination
+func (c *Client) ListSiteGroups() ([]netbox.SiteGroup, error) {
+	var allGroups []netbox.SiteGroup
+	limit := int32(50)
+	offset := int32(0)
+
+	for {
+		c.rateLimit()
+		req := c.client.DcimAPI.DcimSiteGroupsList(c.ctx).Limit(limit).Offset(offset)
+		result, _, err := req.Execute()
+		if err != nil {
+			return nil, fmt.Errorf("failed to list site groups: %w", err)
+		}
+
+		results := result.GetResults()
+		allGroups = append(allGroups, results...)
+
+		if result.GetNext() == "" {
+			break
+		}
+		offset += limit
+	}
+
+	return allGroups, nil
+}
+
 // GetSiteGroupByName finds a site group by name
 func (c *Client) GetSiteGroupByName(name string) (*netbox.SiteGroup, error) {
 	c.rateLimit()

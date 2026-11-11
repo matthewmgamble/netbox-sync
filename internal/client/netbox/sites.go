@@ -249,6 +249,32 @@ func (c *Client) getSiteGroupIDByPath(path string) (*int32, error) {
 	return &id, nil
 }
 
+// ListSites retrieves all sites from NetBox with pagination
+func (c *Client) ListSites() ([]netbox.Site, error) {
+	var allSites []netbox.Site
+	limit := int32(50)
+	offset := int32(0)
+
+	for {
+		c.rateLimit()
+		req := c.client.DcimAPI.DcimSitesList(c.ctx).Limit(limit).Offset(offset)
+		result, _, err := req.Execute()
+		if err != nil {
+			return nil, fmt.Errorf("failed to list sites: %w", err)
+		}
+
+		results := result.GetResults()
+		allSites = append(allSites, results...)
+
+		if result.GetNext() == "" {
+			break
+		}
+		offset += limit
+	}
+
+	return allSites, nil
+}
+
 // mapSiteStatus maps our status to NetBox status value
 func (c *Client) mapSiteStatus(status string) netbox.LocationStatusValue {
 	// NetBox site statuses: active, planned, retired, staging
