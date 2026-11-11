@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/int13consulting/netbox-sync/internal/models"
+	"github.com/matthewmgamble/netbox-sync/internal/models"
 	"gopkg.in/yaml.v3"
 )
 

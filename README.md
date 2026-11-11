@@ -330,10 +330,9 @@ rm data/sync-state.json
 
 ## License
 
-Copyright © 2026 Int13 Consulting Inc.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## Support
 
 For issues and questions:
-- GitHub Issues: (coming soon)
-- Email: mgamble@int13.ca
+- GitHub Issues: https://github.com/matthewmgamble/netbox-sync/issues

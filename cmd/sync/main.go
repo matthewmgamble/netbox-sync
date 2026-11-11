@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/int13consulting/netbox-sync/internal/client/mist"
-	"github.com/int13consulting/netbox-sync/internal/client/netbox"
-	"github.com/int13consulting/netbox-sync/internal/config"
-	"github.com/int13consulting/netbox-sync/internal/logger"
-	"github.com/int13consulting/netbox-sync/internal/state"
-	"github.com/int13consulting/netbox-sync/internal/sync"
+	"github.com/matthewmgamble/netbox-sync/internal/client/mist"
+	"github.com/matthewmgamble/netbox-sync/internal/client/netbox"
+	"github.com/matthewmgamble/netbox-sync/internal/config"
+	"github.com/matthewmgamble/netbox-sync/internal/logger"
+	"github.com/matthewmgamble/netbox-sync/internal/state"
+	"github.com/matthewmgamble/netbox-sync/internal/sync"
 )
 
 const version = "0.1.0"

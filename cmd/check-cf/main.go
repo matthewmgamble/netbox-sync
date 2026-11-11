@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/int13consulting/netbox-sync/internal/config"
+	"github.com/matthewmgamble/netbox-sync/internal/config"
 	netbox "github.com/netbox-community/go-netbox/v4"
 )
 

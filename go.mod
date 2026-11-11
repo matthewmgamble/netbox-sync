@@ -1,4 +1,4 @@
-module github.com/int13consulting/netbox-sync
+module github.com/matthewmgamble/netbox-sync
 
 go 1.27.1
 

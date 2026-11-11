@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/int13consulting/netbox-sync/internal/config"
+	"github.com/matthewmgamble/netbox-sync/internal/config"
 	"github.com/sirupsen/logrus"
 )
 
