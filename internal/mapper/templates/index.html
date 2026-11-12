@@ -20,31 +20,32 @@
     </header>
 
     <main>
-        <form id="bulk-form" hx-post="/api/mapping/bulk" hx-target="body">
-            <div class="toolbar">
-                <input type="text" id="filter" placeholder="Filter sites..." onkeyup="filterRows(this.value)">
-                <button type="submit" class="btn">Save All</button>
-            </div>
+        <div class="toolbar">
+            <input type="text" id="filter" placeholder="Filter sites..." onkeyup="filterRows(this.value)">
+            <button type="button" class="btn"
+                hx-post="/api/mapping/bulk"
+                hx-include="#site-table input, #site-table select"
+                hx-target="body">Save All</button>
+        </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Mist Site</th>
-                        <th>Address</th>
-                        <th>NetBox Site</th>
-                        <th>Region</th>
-                        <th>Site Group</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{range .Rows}}
-                    {{template "site_row.html" (dict "Row" . "NetBoxSites" $.NetBoxSites "Regions" $.Regions "SiteGroups" $.SiteGroups "Statuses" $.Statuses)}}
-                    {{end}}
-                </tbody>
-            </table>
-        </form>
+        <table id="site-table">
+            <thead>
+                <tr>
+                    <th>Mist Site</th>
+                    <th>Address</th>
+                    <th>NetBox Site</th>
+                    <th>Region</th>
+                    <th>Site Group</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Rows}}
+                {{template "site_row.html" (dict "Row" . "NetBoxSites" $.NetBoxSites "Regions" $.Regions "SiteGroups" $.SiteGroups "Statuses" $.Statuses)}}
+                {{end}}
+            </tbody>
+        </table>
     </main>
 
     <script>
